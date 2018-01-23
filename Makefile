@@ -61,9 +61,12 @@ BENCHMARKS = \
 	doc/bench/db_bench_tree_db
 
 CFLAGS += -I. -I./include $(PLATFORM_CCFLAGS) $(OPT)
+CFLAGS += -mabi=purecap -cheri=128 -std=c11 -msoft-float -g
 CXXFLAGS += -I. -I./include $(PLATFORM_CXXFLAGS) $(OPT)
+CXXFLAGS += -mabi=purecap -cheri=128 -std=c++14 -msoft-float -g
 
 LDFLAGS += $(PLATFORM_LDFLAGS)
+LDFLAGS += -fuse-ld=lld
 LIBS += $(PLATFORM_LIBS)
 
 SIMULATOR_OUTDIR=out-ios-x86

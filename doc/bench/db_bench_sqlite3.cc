@@ -666,7 +666,12 @@ class Benchmark {
 
 }  // namespace leveldb
 
+#define HUGEBUF_SIZE (512 << 20)
+
 int main(int argc, char** argv) {
+  printf("Begin parsing args\n");
+  void* hugeBuf = malloc(HUGEBUF_SIZE+0x1000);
+  sqlite3_config(SQLITE_CONFIG_HEAP, hugeBuf, HUGEBUF_SIZE, sizeof(void*));
   std::string default_db_path;
   for (int i = 1; i < argc; i++) {
     double d;
@@ -711,6 +716,8 @@ int main(int argc, char** argv) {
       default_db_path += "/dbbench";
       FLAGS_db = default_db_path.c_str();
   }
+
+  printf("Finished parsing args\n");
 
   leveldb::Benchmark benchmark;
   benchmark.Run();

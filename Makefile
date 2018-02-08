@@ -60,20 +60,31 @@ BENCHMARKS = \
 	doc/bench/db_bench_sqlite3 \
 	doc/bench/db_bench_tree_db
 
-CHERI_SDK ?=
-CHERI ?= 128
-ABI ?= purecap
-CAP_TABLE ?=
+
+ifeq ($(VERSION), mips)
+ABI = n64
+CHERI =
+CC = $(CHERI_SDK)/bin/mips64-unknown-freebsd-clang
+CXX = $(CHERI_SDK)/bin/mips64-unknown-freebsd-clang++
+else
+ABI = purecap
+ifeq ($(VERSION), cheri128)
+CHERI = -cheri=128
+else
+CHERI = -cheri=256
+endif
 CC = $(CHERI_SDK)/bin/cheri-unknown-freebsd-clang
 CXX = $(CHERI_SDK)/bin/cheri-unknown-freebsd-clang++
+endif
+CAP_TABLE ?=
 
 CFLAGS += -I. -I./include $(PLATFORM_CCFLAGS) $(OPT)
-CFLAGS += -mabi=$(ABI) -cheri=$(CHERI) -std=c11 -msoft-float $(CAP_TABLE)
+CFLAGS += -mabi=$(ABI) $(CHERI) -std=c11 -msoft-float $(CAP_TABLE)
 CXXFLAGS += -I. -I./include $(PLATFORM_CXXFLAGS) $(OPT)
-CXXFLAGS += -mabi=$(ABI) -cheri=$(CHERI) -std=c++14 -msoft-float $(CAP_TABLE)
+CXXFLAGS += -mabi=$(ABI) $(CHERI) -std=c++14 -msoft-float $(CAP_TABLE)
 
 LDFLAGS += $(PLATFORM_LDFLAGS)
-LDFLAGS += -mabi=$(ABI) -cheri=$(CHERI) -msoft-float $(CAP_TABLE) -fuse-ld=lld -Wl,--whole-archive -lstatcounters -Wl,--no-whole-archive
+LDFLAGS += -mabi=$(ABI) $(CHERI) -msoft-float $(CAP_TABLE) -fuse-ld=lld -Wl,--whole-archive -lstatcounters -Wl,--no-whole-archive
 LIBS += $(PLATFORM_LIBS)
 
 SIMULATOR_OUTDIR=out-ios-x86

@@ -60,13 +60,20 @@ BENCHMARKS = \
 	doc/bench/db_bench_sqlite3 \
 	doc/bench/db_bench_tree_db
 
+CHERI_SDK ?=
+CHERI ?= 128
+ABI ?= purecap
+CAP_TABLE ?=
+CC = $(CHERI_SDK)/bin/cheri-unknown-freebsd-clang
+CXX = $(CHERI_SDK)/bin/cheri-unknown-freebsd-clang++
+
 CFLAGS += -I. -I./include $(PLATFORM_CCFLAGS) $(OPT)
-CFLAGS += -mabi=purecap -cheri=128 -std=c11 -msoft-float -g
+CFLAGS += -mabi=$(ABI) -cheri=128 -std=c11 -msoft-float $(CAP_TABLE)
 CXXFLAGS += -I. -I./include $(PLATFORM_CXXFLAGS) $(OPT)
-CXXFLAGS += -mabi=purecap -cheri=128 -std=c++14 -msoft-float -g
+CXXFLAGS += -mabi=$(ABI) -cheri=128 -std=c++14 -msoft-float $(CAP_TABLE)
 
 LDFLAGS += $(PLATFORM_LDFLAGS)
-LDFLAGS += -fuse-ld=lld
+LDFLAGS += -mabi=$(ABI) -cheri=128 -msoft-float $(CAP_TABLE) -fuse-ld=lld -Wl,--whole-archive -lstatcounters -Wl,--no-whole-archive
 LIBS += $(PLATFORM_LIBS)
 
 SIMULATOR_OUTDIR=out-ios-x86
@@ -154,6 +161,7 @@ clean:
 	-rm -rf out-static out-shared out-ios-x86 out-ios-arm out-ios-universal
 	-rm -f build_config.mk
 	-rm -rf ios-x86 ios-arm
+	rm sqlite3.o
 
 $(STATIC_OUTDIR):
 	mkdir $@
@@ -305,8 +313,11 @@ $(SHARED_MEMENVLIB):$(SHARED_MEMENVOBJECTS)
 $(STATIC_OUTDIR)/db_bench:db/db_bench.cc $(STATIC_LIBOBJECTS) $(TESTUTIL)
 	$(CXX) $(LDFLAGS) $(CXXFLAGS) db/db_bench.cc $(STATIC_LIBOBJECTS) $(TESTUTIL) -o $@ $(LIBS)
 
-$(STATIC_OUTDIR)/db_bench_sqlite3:doc/bench/db_bench_sqlite3.cc $(STATIC_LIBOBJECTS) $(TESTUTIL)
-	$(CXX) $(LDFLAGS) $(CXXFLAGS) doc/bench/db_bench_sqlite3.cc $(STATIC_LIBOBJECTS) $(TESTUTIL) -o $@ -lsqlite3 $(LIBS)
+$(STATIC_OUTDIR)/db_bench_sqlite3:doc/bench/db_bench_sqlite3.cc $(STATIC_LIBOBJECTS) $(TESTUTIL) sqlite3.o
+	$(CXX) $(LDFLAGS) $(CXXFLAGS) doc/bench/db_bench_sqlite3.cc $(STATIC_LIBOBJECTS) $(TESTUTIL) sqlite3.o -o $@ $(LIBS)
+
+sqlite3.o: sqlite3.c
+	$(CC) $(CFLAGS) -c $< -o $@
 
 $(STATIC_OUTDIR)/db_bench_tree_db:doc/bench/db_bench_tree_db.cc $(STATIC_LIBOBJECTS) $(TESTUTIL)
 	$(CXX) $(LDFLAGS) $(CXXFLAGS) doc/bench/db_bench_tree_db.cc $(STATIC_LIBOBJECTS) $(TESTUTIL) -o $@ -lkyotocabinet $(LIBS)

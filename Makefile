@@ -79,12 +79,12 @@ endif
 CAP_TABLE ?=
 
 CFLAGS += -I. -I./include $(PLATFORM_CCFLAGS) $(OPT)
-CFLAGS += -mabi=$(ABI) $(CHERI) -std=c11 -msoft-float $(CAP_TABLE)
+CFLAGS += -mabi=$(ABI) --sysroot=$(CHERI_SDK)/sysroot $(CHERI) -std=c11 -msoft-float $(CAP_TABLE)
 CXXFLAGS += -I. -I./include $(PLATFORM_CXXFLAGS) $(OPT)
-CXXFLAGS += -mabi=$(ABI) $(CHERI) -std=c++14 -msoft-float $(CAP_TABLE)
+CXXFLAGS += -mabi=$(ABI) --sysroot=$(CHERI_SDK)/sysroot $(CHERI) -std=c++14 -msoft-float $(CAP_TABLE)
 
 LDFLAGS += $(PLATFORM_LDFLAGS)
-LDFLAGS += -mabi=$(ABI) $(CHERI) -msoft-float $(CAP_TABLE) -fuse-ld=lld -Wl,--whole-archive -lstatcounters -Wl,--no-whole-archive
+LDFLAGS += -mabi=$(ABI) --sysroot=$(CHERI_SDK)/sysroot $(CHERI) -msoft-float $(CAP_TABLE) -fuse-ld=lld -Wl,--whole-archive -lstatcounters -Wl,--no-whole-archive
 LIBS += $(PLATFORM_LIBS)
 
 SIMULATOR_OUTDIR=out-ios-x86

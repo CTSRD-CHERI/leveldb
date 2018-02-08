@@ -61,11 +61,11 @@ BENCHMARKS = \
 	doc/bench/db_bench_tree_db
 
 
+CC = $(CHERI_SDK)/bin/cheri-unknown-freebsd-clang
+CXX = $(CHERI_SDK)/bin/cheri-unknown-freebsd-clang++
 ifeq ($(VERSION), mips)
 ABI = n64
 CHERI =
-CC = $(CHERI_SDK)/bin/mips64-unknown-freebsd-clang
-CXX = $(CHERI_SDK)/bin/mips64-unknown-freebsd-clang++
 else
 ABI = purecap
 ifeq ($(VERSION), cheri128)
@@ -73,8 +73,6 @@ CHERI = -cheri=128
 else
 CHERI = -cheri=256
 endif
-CC = $(CHERI_SDK)/bin/cheri-unknown-freebsd-clang
-CXX = $(CHERI_SDK)/bin/cheri-unknown-freebsd-clang++
 endif
 CAP_TABLE ?=
 

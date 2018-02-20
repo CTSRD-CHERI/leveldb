@@ -74,7 +74,10 @@ else
 CHERI = -cheri=256
 endif
 endif
-CAP_TABLE ?=
+
+ifeq ($(ISA), cap-table)
+CAP_TABLE = -cheri-cap-table
+endif
 
 CFLAGS += -I. -I./include $(PLATFORM_CCFLAGS) $(OPT)
 CFLAGS += -mabi=$(ABI) --sysroot=$(CHERI_SDK)/sysroot $(CHERI) -std=c11 -msoft-float $(CAP_TABLE)
